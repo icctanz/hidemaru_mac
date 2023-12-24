@@ -1,0 +1,563 @@
+// mery_color.mac
+//  meryのカラーテーマを秀丸に適用します。完全ではないので各自で調整必要
+// https://www.haijin-boys.com/
+// https://www.haijin-boys.com/software/mery/mery-themes
+// 
+// 
+
+
+setcompatiblemode 0x10F|0x00020000;
+debuginfo(0);
+
+//設定ファイルのパスを指定
+$config_path = currentmacrodirectory;
+$config_path = @"C:\Users\m75q_user\Dropbox\800_dev\秀丸マクロ\color_set\";
+
+
+//bkup
+#x1 = x;
+#y1 = y;
+$bksb =searchbuffer;
+#bkso =searchoption|0x00000010;
+#bkso2=searchoption2;
+
+//disabledwaw;
+
+
+//引数処理
+$arg0 = getarg(0);
+if($arg0 != "" && $arg0 != "rnd"){
+	$file = $config_path+$arg0;
+	if( existfile($file) == false ){message "param err";endmacro;}
+}
+
+if($arg0 == ""){
+	call loadfile;
+	$file = $config_path+$file_name;
+	//message $file;
+}
+
+jsmode "WebView2";
+js{
+	
+	//ファイル読み込み
+	var file = hidemaru.getVar("$file");
+	var tmp  = hidemaru.loadTextFile(file);
+	
+	//message (tmp);
+	console.log(file);
+	
+	//セクション名取得
+	const found = tmp.match(/\[.+?\]/g);
+	const section_val = found[0].slice(1,found[0].length-1); //最初のsection
+	console.log(section_val);
+	
+	
+	//normal
+	GeneralForeColor = getinistr( file ,section_val ,"GeneralForeColor");
+	GeneralBackColor = getinistr( file ,section_val ,"GeneralBackColor");
+	configcolor({
+		normal:			{text: GeneralForeColor 		,back:GeneralBackColor		,style: ""}
+	});
+	
+	//num
+	IndicatorModifiedBackColor	= getinistr( file ,section_val ,"IndicatorModifiedBackColor");
+	configcolor({
+		num:				{text:IndicatorModifiedBackColor	,back:GeneralBackColor			,style: ""},
+	});
+	
+	//select
+	SelectionForeColor		= getinistr( file ,section_val ,"SelectionForeColor");
+	SelectionBackColor		= getinistr( file ,section_val ,"SelectionBackColor");
+	//hilightfound
+	//search
+	SearchStringForeColor	= getinistr( file ,section_val ,"SearchStringForeColor");
+	SearchStringBackColor	= getinistr( file ,section_val ,"SearchStringBackColor");
+	
+	
+	//改行,EOF
+	CRLFForeColor			= getinistr( file ,section_val ,"CRLFForeColor");
+	CRLFBackColor			= getinistr( file ,section_val ,"CRLFBackColor");
+	EOFForeColor			= getinistr( file ,section_val ,"EOFForeColor");
+	EOFBackColor			= getinistr( file ,section_val ,"EOFBackColor");
+	
+	//tab
+	TabForeColor			= getinistr( file ,section_val ,"TabForeColor");
+	TabBackColor			= getinistr( file ,section_val ,"TabBackColor");
+	
+	//string
+	StringForeColor			= getinistr( file ,section_val ,"StringForeColor");
+	StringBackColor			= getinistr( file ,section_val ,"StringBackColor");
+	//comment
+	CommentForeColor		= getinistr( file ,section_val ,"CommentForeColor");
+	CommentBackColor		= getinistr( file ,section_val ,"CommentBackColor");
+	
+	//script
+	ScriptForeColor			= getinistr( file ,section_val ,"ScriptForeColor");
+	ScriptBackColor			= getinistr( file ,section_val ,"ScriptBackColor");
+	 
+	configcolor({
+		hilightfound:		{text:GeneralBackColor 		,back:GeneralForeColor		,style: ""},
+		Selection:			{text:SelectionForeColor 	,back:SelectionBackColor	,style: ""},
+		
+		cr:					{text:CRLFForeColor 		,back:CRLFBackColor			,style: ""},
+		string:				{text:StringForeColor 		,back:StringBackColor		,style: ""},
+		comment:			{text:CommentForeColor 		,back:CommentBackColor		,style: ""},
+		tab:				{text:TabForeColor 			,back:TabBackColor			,style: ""},
+		script:				{text:ScriptForeColor 		,back:ScriptBackColor		,style: ""},
+		
+	});
+
+	
+	
+	
+	//強調表示1~8
+	Keyword1ForeColor = getinistr( file ,section_val , "Keyword1ForeColor");
+	Keyword2ForeColor = getinistr( file ,section_val , "Keyword2ForeColor");
+	Keyword3ForeColor = getinistr( file ,section_val , "Keyword3ForeColor");
+	Keyword4ForeColor = getinistr( file ,section_val , "Keyword4ForeColor");
+	Keyword5ForeColor = getinistr( file ,section_val , "Keyword5ForeColor");
+	Keyword6ForeColor = getinistr( file ,section_val , "Keyword6ForeColor");
+	Keyword7ForeColor = getinistr( file ,section_val , "Keyword7ForeColor");
+	Keyword8ForeColor = getinistr( file ,section_val , "Keyword8ForeColor");
+	
+	Keyword1BackColor = getinistr( file ,section_val , "Keyword1BackColor");
+	Keyword2BackColor = getinistr( file ,section_val , "Keyword2BackColor");
+	Keyword3BackColor = getinistr( file ,section_val , "Keyword3BackColor");
+	Keyword4BackColor = getinistr( file ,section_val , "Keyword4BackColor");
+	Keyword5BackColor = getinistr( file ,section_val , "Keyword5BackColor");
+	Keyword6BackColor = getinistr( file ,section_val , "Keyword6BackColor");
+	Keyword7BackColor = getinistr( file ,section_val , "Keyword7BackColor");
+	Keyword8BackColor = getinistr( file ,section_val , "Keyword8BackColor");
+	configcolor({
+		hilight1:	{text: Keyword1ForeColor 		,back:Keyword1BackColor		,style: ""},
+		hilight2:	{text: Keyword2ForeColor 		,back:Keyword2BackColor		,style: ""},
+		hilight3:	{text: Keyword3ForeColor 		,back:Keyword3BackColor		,style: ""},
+		hilight4:	{text: Keyword4ForeColor 		,back:Keyword4BackColor		,style: ""},
+		hilight5:	{text: Keyword5ForeColor 		,back:Keyword5BackColor		,style: ""},
+		hilight6:	{text: Keyword6ForeColor 		,back:Keyword6BackColor		,style: ""},
+		hilight7:	{text: Keyword7ForeColor 		,back:Keyword7BackColor		,style: ""},
+		hilight8:	{text: Keyword8ForeColor 		,back:Keyword8BackColor		,style: ""},
+		
+	});
+	
+	//特に強調,行の強調
+	Marker1ForeColor = getinistr( file ,section_val , "Marker1ForeColor");
+	Marker2ForeColor = getinistr( file ,section_val , "Marker2ForeColor");
+	Marker3ForeColor = getinistr( file ,section_val , "Marker3ForeColor");
+	Marker4ForeColor = getinistr( file ,section_val , "Marker4ForeColor");
+	Marker5ForeColor = getinistr( file ,section_val , "Marker5ForeColor");
+	Marker6ForeColor = getinistr( file ,section_val , "Marker6ForeColor");
+	Marker7ForeColor = getinistr( file ,section_val , "Marker7ForeColor");
+	Marker8ForeColor = getinistr( file ,section_val , "Marker8ForeColor");
+	
+	Marker1BackColor = getinistr( file ,section_val , "Marker1BackColor");
+	Marker2BackColor = getinistr( file ,section_val , "Marker2BackColor");
+	Marker3BackColor = getinistr( file ,section_val , "Marker3BackColor");
+	Marker4BackColor = getinistr( file ,section_val , "Marker4BackColor");
+	Marker5BackColor = getinistr( file ,section_val , "Marker5BackColor");
+	Marker6BackColor = getinistr( file ,section_val , "Marker6BackColor");
+	Marker7BackColor = getinistr( file ,section_val , "Marker7BackColor");
+	Marker8BackColor = getinistr( file ,section_val , "Marker8BackColor");
+	//特に強調 ※FB逆に設定 ※FはNormalを指定
+	configcolor({
+		especially1:	{text:GeneralBackColor			,back:Marker1BackColor		,style: ""},
+		especially2:	{text:GeneralBackColor			,back:Marker2BackColor		,style: ""},
+		especially3:	{text:GeneralBackColor			,back:Marker3BackColor		,style: ""},
+		especially4:	{text:GeneralBackColor			,back:Marker4BackColor		,style: ""},
+		//especially1:	{text:Marker1BackColor			,back:Marker1ForeColor		,style: ""},
+		//especially2:	{text:Marker2BackColor			,back:Marker2ForeColor		,style: ""},
+		//especially3:	{text:Marker3BackColor			,back:Marker3ForeColor		,style: ""},
+		//especially4:	{text:Marker4BackColor			,back:Marker4ForeColor		,style: ""},
+	});
+	//行の強調
+	configcolor({
+		hilightline1:	{text:Marker5BackColor  		,back:""		,style: ""},
+		hilightline2:	{text:Marker6BackColor  		,back:""		,style: ""},
+		hilightline3:	{text:Marker7BackColor  		,back:""		,style: ""},
+		hilightline4:	{text:Marker8BackColor  		,back:""		,style: ""},
+		
+	});
+
+
+
+}
+
+
+
+endmacro:
+setsearch $bksb, #bkso|0x00000010|0x00000020, #bkso2;
+hilightfound 0;
+moveto #x1,#y1;
+enabledraw;
+redraw;
+redraw;
+redraw;
+redraw;
+endmacro;
+
+
+
+
+
+loadfile:
+	$file_name="base16-apprentice.metheme";
+	$file_name="base16-apathy.metheme";
+	
+	if($arg0 != "" && $arg0 !="rnd" ){
+		$file_name="";
+	}else{
+		
+		//file一覧
+		//$$a = browsefile($config_path,"*.metheme");
+		//message $$a;
+		#objFSO   = createobject("Scripting.FileSystemObject");
+		#objFolder= callmethod_returnobj(#objFSO,"GetFolder",$config_path);
+		#objFiles = getpropobj(#objFolder,"Files");
+		#c = getpropnum(#objFiles,"Count");
+		//message "ファイル数=" + str(#c) + "\n";
+		
+		#i=0;
+		while(1){
+			#objFile = getcollection(#objFiles);
+			if( #objFile == 0 ) break;
+			
+			$fileitm[#i]=getpropstr(#objFile,"Name");
+			releaseobject #objFile;
+			#i=#i+1;
+		}
+		releaseobject #objFiles;
+		releaseobject #objFolder;
+		releaseobject #objFSO;
+		
+		
+		menuarray $fileitm,#c;
+		$file_name=$fileitm[result-1];
+		message $file_name;
+	}
+	
+	
+
+return $file_name;
+
+
+
+
+/* 
+■指定可能なプロパティの一覧 ※Ver9.26 ヘルプ記載
+
+normal			 0    普通の文字の色（参照）   
+lineno			 1    行番号の色 透明可  
+linenoupdated	 2    編集した行番号の色 透明可  
+comment			 3    コメント 透明可  
+hilight1		 4    強調1 透明可  
+especially1		 5    特に強調1 透明可  
+hilightline1	 6    行の強調1 透明可  
+hilight2		 7    強調2 透明可  
+especially2		 8    特に強調2 透明可  
+hilightline2	 9    行の強調2 透明可  
+linenomark		10    マークした行の色 透明可  
+url				11    URL部分 透明可  
+email			12    Email部分 透明可  
+htmltag			13    HTMLタグ全体部分 透明可  
+htmlelem		14    HTMLタグのエレメント 透明可  
+htmlattr		15    HTMLタグのアトリビュート 透明可  
+cr				16    改行文字の色（参照）   
+selection		17    範囲選択の色   
+tab				18    タブ文字の色 透明可  
+space			19    全角空白、半角空白の色   
+string			20    文字列定数 透明可  
+filename		21    ファイル名部分 透明可  
+hilight3		22    強調3 透明可  
+hilight4		23    強調4 透明可  
+kakkopair		24    対応する括弧の強調表示 透明可  
+script			25    HTMLでのスクリプト部分 透明可  
+ifdef			26    #ifdef等での無効部分 透明可  
+curlinevert		27    カーソル位置の縦線   
+guidelinevert	28    ガイドライン   
+orikaeshiline	29    折り返し桁数の縦線   
+outlinepane		30    強調表示一覧の枠   
+stripe			31    背景ストライプ表示 n2は[0]で指定します  
+curlineime		32    カーソル行(IME ON時)   
+guidelinehorz	33    ガイドライン(横)   
+hilightfound	34    検索文字列の強調 透明可  
+lastedit		35    最後に編集した所   
+hilight5		36    強調5 透明可  
+hilight6		37    強調6 透明可  
+hilight7		38    強調7 透明可  
+hilight8		39    強調8 透明可  
+especially3		40    特に強調3 透明可  
+especially4		41    特に強調4 透明可  
+hilightline3	42    行の強調3 透明可  
+hilightline4	43    行の強調4 透明可  
+num				44    数値 透明可  
+outlinebar		45    見出しバー   
+foldable		46    折りたたみ用の余白 透明可  
+folded			47    折りたたまれた行の表示   
+outlinepanesel	48    アウトライン解析の枠選択   
+imeinput		49    IME変換中の色 透明可  
+				50    (内部的に使用)   
+formline		51    整形ラインの色  （V8.00以降） 
+tabmode			52    タブモードでのタブの色  （V8.20以降） 
+tree1			53    アウトライン解析の枠のレベルの色1  （V8.40以降） 
+tree2			54    アウトライン解析の枠のレベルの色2  （V8.40以降） 
+tree3			55    アウトライン解析の枠のレベルの色3  （V8.40以降） 
+tree4			56    アウトライン解析の枠のレベルの色4  （V8.40以降） 
+tree5			57    アウトライン解析の枠のレベルの色5  （V8.40以降） 
+tree6			58    アウトライン解析の枠のレベルの色6  （V8.40以降） 
+tree7			59    アウトライン解析の枠のレベルの色7  （V8.40以降） 
+tree8			60    アウトライン解析の枠のレベルの色8  （V8.40以降） 
+inactivetab		61    非アクティブなタブの色  （V8.40以降） 
+caretime		62    キャレット（IME OFF時）の色  （V8.75以降） 
+tagpair			63    対応するタグの強調表示 透明可 （V8.83以降） 
+curword			64    カーソル位置の単語 透明可 （V8.85以降） 
+curline			65    カーソル行の色（参照）  （V9.12以降） 
+ruler			66    ルーラーの色（参照） -1で文字と同じ/背景と同じ   （V9.12以降） 
+indent1			
+indent2			
+indent3			
+indent4			
+indent5			
+indent6			
+indent7			
+indent8			
+
+
+
+
+それぞれの値は、色とスタイルのオブジェクトになります。
+色とスタイルのオブジェクトのプロパティは以下になります。
+text
+back
+style
+
+
+色は文字列で#から始まるRGB値か、以下の文字列のいずれかになります。
+transparent
+syswindow
+syswindowtext
+syshighlight
+syshighlighttext
+
+
+スタイルは、以下の文字列のいずれかになります。
+normal
+bold
+underline
+underline bold
+italic
+italic bold
+underline italic
+underline italic bold
+outline
+superbold
+shadow
+transparent
+
+
+*/
+
+
+
+/*
+■meryの設定
+
+GeneralForeColor=#81B5AC
+GeneralBackColor=#031A16
+GeneralStyle=0
+SelectionForeColor=
+SelectionBackColor=#389C8C
+SelectionStyle=0
+MultiSelectionForeColor=
+MultiSelectionBackColor=
+MultiSelectionStyle=0
+CaretColor=
+ImeCaretColor=
+CurrentLineForeColor=
+CurrentLineBackColor=
+CurrentLineStyle=0
+EvenLinesForeColor=
+EvenLinesBackColor=
+EvenLinesStyle=0
+HyperlinkForeColor=#3E7996
+HyperlinkBackColor=
+HyperlinkStyle=4
+StringForeColor=#883E96
+StringBackColor=
+StringStyle=0
+CommentForeColor=#2B685E
+CommentBackColor=
+CommentStyle=0
+ScriptForeColor=
+ScriptBackColor=
+ScriptStyle=0
+BracketForeColor=
+BracketBackColor=
+BracketStyle=1
+TagForeColor=#81B5AC
+TagBackColor=
+TagStyle=0
+Keyword1ForeColor=#4C963E
+Keyword1BackColor=
+Keyword1Style=0
+Keyword2ForeColor=#3E9688
+Keyword2BackColor=
+Keyword2Style=0
+Keyword3ForeColor=#3E7996
+Keyword3BackColor=
+Keyword3Style=0
+Keyword4ForeColor=#963E4C
+Keyword4BackColor=
+Keyword4Style=0
+Keyword5ForeColor=#3E4C96
+Keyword5BackColor=
+Keyword5Style=0
+Keyword6ForeColor=#96883E
+Keyword6BackColor=
+Keyword6Style=0
+Keyword7ForeColor=#883E96
+Keyword7BackColor=
+Keyword7Style=0
+Keyword8ForeColor=#3E965B
+Keyword8BackColor=
+Keyword8Style=0
+CRLFForeColor=#2B685E
+CRLFBackColor=
+CRLFStyle=0
+WrapForeColor=#2B685E
+WrapBackColor=
+WrapStyle=0
+TabForeColor=#2B685E
+TabBackColor=
+TabStyle=0
+EOFForeColor=#2B685E
+EOFBackColor=
+EOFStyle=0
+CaretForeColor=#2B685E
+CaretBackColor=
+CaretStyle=0
+LineNumbersForeColor=
+LineNumbersBackColor=
+LineNumbersStyle=0
+ChangedLineNumbersForeColor=
+ChangedLineNumbersBackColor=
+ChangedLineNumbersStyle=0
+SelectedLineNumbersForeColor=
+SelectedLineNumbersBackColor=
+SelectedLineNumbersStyle=0
+RulerForeColor=
+RulerBackColor=
+RulerStyle=0
+VerticalLineForeColor=#2B685E
+VerticalLineBackColor=
+VerticalLineStyle=0
+IndentGuidesForeColor=#293C39
+IndentGuidesBackColor=
+IndentGuidesStyle=0
+SBAlphabeticForeColor=
+SBAlphabeticBackColor=
+SBAlphabeticStyle=0
+SBNumberForeColor=
+SBNumberBackColor=
+SBNumberStyle=0
+SBSymbolForeColor=
+SBSymbolBackColor=
+SBSymbolStyle=0
+SBKatakanaForeColor=
+SBKatakanaBackColor=
+SBKatakanaStyle=0
+SBSpaceForeColor=#2B685E
+SBSpaceBackColor=
+SBSpaceStyle=0
+DBAlphabetForeColor=
+DBAlphabetBackColor=
+DBAlphabetStyle=0
+DBNumberForeColor=
+DBNumberBackColor=
+DBNumberStyle=0
+DBSymbolForeColor=
+DBSymbolBackColor=
+DBSymbolStyle=0
+DBHiraganaForeColor=
+DBHiraganaBackColor=
+DBHiraganaStyle=0
+DBKatakanaForeColor=
+DBKatakanaBackColor=
+DBKatakanaStyle=0
+DBKanjiForeColor=
+DBKanjiBackColor=
+DBKanjiStyle=0
+DBSpaceForeColor=#2B685E
+DBSpaceBackColor=
+DBSpaceStyle=0
+BookmarkForeColor=
+BookmarkBackColor=#655645
+BookmarkStyle=0
+SpellForeColor=
+SpellBackColor=
+SpellStyle=8
+SearchStringForeColor=
+SearchStringBackColor=#603204
+SearchStringStyle=0
+AutoMarkerForeColor=
+AutoMarkerBackColor=
+AutoMarkerStyle=4
+Marker1ForeColor=
+Marker1BackColor=#FD504E
+Marker1Style=0
+Marker2ForeColor=
+Marker2BackColor=#FDB241
+Marker2Style=0
+Marker3ForeColor=
+Marker3BackColor=#FFDA3A
+Marker3Style=0
+Marker4ForeColor=
+Marker4BackColor=#67F032
+Marker4Style=0
+Marker5ForeColor=
+Marker5BackColor=#4199FF
+Marker5Style=0
+Marker6ForeColor=
+Marker6BackColor=#E98FFF
+Marker6Style=0
+Marker7ForeColor=
+Marker7BackColor=#FD5A8F
+Marker7Style=0
+Marker8ForeColor=
+Marker8BackColor=#D2AD7B
+Marker8Style=0
+IndicatorModifiedForeColor=
+IndicatorModifiedBackColor=#EFF284
+IndicatorModifiedStyle=0
+IndicatorSavedForeColor=
+IndicatorSavedBackColor=#577430
+IndicatorSavedStyle=0
+ScrollBarModifiedForeColor=
+ScrollBarModifiedBackColor=
+ScrollBarModifiedStyle=0
+ScrollBarSavedForeColor=
+ScrollBarSavedBackColor=
+ScrollBarSavedStyle=0
+ScrollBarBookmarkForeColor=
+ScrollBarBookmarkBackColor=
+ScrollBarBookmarkStyle=0
+ScrollBarFoundForeColor=
+ScrollBarFoundBackColor=
+ScrollBarFoundStyle=0
+ScrollBarCaretForeColor=
+ScrollBarCaretBackColor=
+ScrollBarCaretStyle=0
+ForeignForeColor=
+ForeignBackColor=
+ForeignStyle=0
+OtherForeColor=
+OtherBackColor=
+OtherStyle=0
+ControlForeColor=#2B685E
+ControlBackColor=
+ControlStyle=0
+InvalidForeColor=#031A16
+InvalidBackColor=#3E9688
+InvalidStyle=0
+
+*/
