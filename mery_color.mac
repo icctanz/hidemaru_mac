@@ -1,26 +1,28 @@
 // mery_color.mac
-//  meryのカラーテーマを秀丸に適用します。完全ではないので各自で調整必要
-// https://www.haijin-boys.com/
-// https://www.haijin-boys.com/software/mery/mery-themes
-// 
-// 
-
-
+// meryのカラーテーマを秀丸に適用します。
+// 		https://www.haijin-boys.com/
+// 		https://www.haijin-boys.com/software/mery/mery-themes
+//
+// 設定の取り込みは完全に一致はしないので各自で調整必要
+// 引数でファイル名指定可。引数に「rnd」指定でランダムファイル設定
+// 設定は色のみ。フォントスタイルや設定有効無効等は原則変わらないです(たぶん)
+// 実行後は(一時的な設定)となるので、永続的に設定する際は適宜保存する必要あり
+// ※作成&動作確認時のVersion 秀丸Ver9.26、MerryVer3.6.4
+//
 setcompatiblemode 0x10F|0x00020000;
 debuginfo(0);
 
 //設定ファイルのパスを指定
 $config_path = currentmacrodirectory;
 
-
 //bkup
 #x1 = x;
 #y1 = y;
-$bksb =searchbuffer;
 #bkso =searchoption|0x00000010;
 #bkso2=searchoption2;
+$bksb =searchbuffer;
 
-//disabledwaw;
+disabledraw;
 
 
 //引数処理
@@ -32,7 +34,8 @@ if($arg0 != "" && $arg0 != "rnd"){
 
 if($arg0 == ""){
 	call loadfile;
-	$file = $config_path+$file_name;
+	//$file = $config_path+$file_name;
+	$file = $config_path+$$return;
 	//message $file;
 }
 
@@ -40,10 +43,9 @@ jsmode "WebView2";
 js{
 	
 	//ファイル読み込み
-	var file = hidemaru.getVar("$file");
+	const file = hidemaru.getVar("$file");
 	var tmp  = hidemaru.loadTextFile(file);
 	
-	//message (tmp);
 	console.log(file);
 	
 	//セクション名取得
@@ -60,40 +62,40 @@ js{
 	});
 	
 	//num
-	IndicatorModifiedBackColor	= getinistr( file ,section_val ,"IndicatorModifiedBackColor");
+	IndicatorModifiedBackColor	= getinistr2( file ,section_val ,"IndicatorModifiedBackColor");
 	configcolor({
 		num:				{text:IndicatorModifiedBackColor	,back:GeneralBackColor			,style: ""},
 	});
 	
 	//select
-	SelectionForeColor		= getinistr( file ,section_val ,"SelectionForeColor");
-	SelectionBackColor		= getinistr( file ,section_val ,"SelectionBackColor");
+	SelectionForeColor		= getinistr2( file ,section_val ,"SelectionForeColor");
+	SelectionBackColor		= getinistr2( file ,section_val ,"SelectionBackColor");
 	//hilightfound
 	//search
-	SearchStringForeColor	= getinistr( file ,section_val ,"SearchStringForeColor");
-	SearchStringBackColor	= getinistr( file ,section_val ,"SearchStringBackColor");
+	SearchStringForeColor	= getinistr2( file ,section_val ,"SearchStringForeColor");
+	SearchStringBackColor	= getinistr2( file ,section_val ,"SearchStringBackColor");
 	
 	
 	//改行,EOF
-	CRLFForeColor			= getinistr( file ,section_val ,"CRLFForeColor");
-	CRLFBackColor			= getinistr( file ,section_val ,"CRLFBackColor");
-	EOFForeColor			= getinistr( file ,section_val ,"EOFForeColor");
-	EOFBackColor			= getinistr( file ,section_val ,"EOFBackColor");
+	CRLFForeColor			= getinistr2( file ,section_val ,"CRLFForeColor");
+	CRLFBackColor			= getinistr2( file ,section_val ,"CRLFBackColor");
+	EOFForeColor			= getinistr2( file ,section_val ,"EOFForeColor");
+	EOFBackColor			= getinistr2( file ,section_val ,"EOFBackColor");
 	
 	//tab
-	TabForeColor			= getinistr( file ,section_val ,"TabForeColor");
-	TabBackColor			= getinistr( file ,section_val ,"TabBackColor");
+	TabForeColor			= getinistr2( file ,section_val ,"TabForeColor");
+	TabBackColor			= getinistr2( file ,section_val ,"TabBackColor");
 	
 	//string
-	StringForeColor			= getinistr( file ,section_val ,"StringForeColor");
-	StringBackColor			= getinistr( file ,section_val ,"StringBackColor");
+	StringForeColor			= getinistr2( file ,section_val ,"StringForeColor");
+	StringBackColor			= getinistr2( file ,section_val ,"StringBackColor");
 	//comment
-	CommentForeColor		= getinistr( file ,section_val ,"CommentForeColor");
-	CommentBackColor		= getinistr( file ,section_val ,"CommentBackColor");
+	CommentForeColor		= getinistr2( file ,section_val ,"CommentForeColor");
+	CommentBackColor		= getinistr2( file ,section_val ,"CommentBackColor");
 	
 	//script
-	ScriptForeColor			= getinistr( file ,section_val ,"ScriptForeColor");
-	ScriptBackColor			= getinistr( file ,section_val ,"ScriptBackColor");
+	ScriptForeColor			= getinistr2( file ,section_val ,"ScriptForeColor");
+	ScriptBackColor			= getinistr2( file ,section_val ,"ScriptBackColor");
 	 
 	configcolor({
 		hilightfound:		{text:GeneralBackColor 		,back:GeneralForeColor		,style: ""},
@@ -111,23 +113,23 @@ js{
 	
 	
 	//強調表示1~8
-	Keyword1ForeColor = getinistr( file ,section_val , "Keyword1ForeColor");
-	Keyword2ForeColor = getinistr( file ,section_val , "Keyword2ForeColor");
-	Keyword3ForeColor = getinistr( file ,section_val , "Keyword3ForeColor");
-	Keyword4ForeColor = getinistr( file ,section_val , "Keyword4ForeColor");
-	Keyword5ForeColor = getinistr( file ,section_val , "Keyword5ForeColor");
-	Keyword6ForeColor = getinistr( file ,section_val , "Keyword6ForeColor");
-	Keyword7ForeColor = getinistr( file ,section_val , "Keyword7ForeColor");
-	Keyword8ForeColor = getinistr( file ,section_val , "Keyword8ForeColor");
+	Keyword1ForeColor = getinistr2( file ,section_val , "Keyword1ForeColor");
+	Keyword2ForeColor = getinistr2( file ,section_val , "Keyword2ForeColor");
+	Keyword3ForeColor = getinistr2( file ,section_val , "Keyword3ForeColor");
+	Keyword4ForeColor = getinistr2( file ,section_val , "Keyword4ForeColor");
+	Keyword5ForeColor = getinistr2( file ,section_val , "Keyword5ForeColor");
+	Keyword6ForeColor = getinistr2( file ,section_val , "Keyword6ForeColor");
+	Keyword7ForeColor = getinistr2( file ,section_val , "Keyword7ForeColor");
+	Keyword8ForeColor = getinistr2( file ,section_val , "Keyword8ForeColor");
 	
-	Keyword1BackColor = getinistr( file ,section_val , "Keyword1BackColor");
-	Keyword2BackColor = getinistr( file ,section_val , "Keyword2BackColor");
-	Keyword3BackColor = getinistr( file ,section_val , "Keyword3BackColor");
-	Keyword4BackColor = getinistr( file ,section_val , "Keyword4BackColor");
-	Keyword5BackColor = getinistr( file ,section_val , "Keyword5BackColor");
-	Keyword6BackColor = getinistr( file ,section_val , "Keyword6BackColor");
-	Keyword7BackColor = getinistr( file ,section_val , "Keyword7BackColor");
-	Keyword8BackColor = getinistr( file ,section_val , "Keyword8BackColor");
+	Keyword1BackColor = getinistr2( file ,section_val , "Keyword1BackColor");
+	Keyword2BackColor = getinistr2( file ,section_val , "Keyword2BackColor");
+	Keyword3BackColor = getinistr2( file ,section_val , "Keyword3BackColor");
+	Keyword4BackColor = getinistr2( file ,section_val , "Keyword4BackColor");
+	Keyword5BackColor = getinistr2( file ,section_val , "Keyword5BackColor");
+	Keyword6BackColor = getinistr2( file ,section_val , "Keyword6BackColor");
+	Keyword7BackColor = getinistr2( file ,section_val , "Keyword7BackColor");
+	Keyword8BackColor = getinistr2( file ,section_val , "Keyword8BackColor");
 	configcolor({
 		hilight1:	{text: Keyword1ForeColor 		,back:Keyword1BackColor		,style: ""},
 		hilight2:	{text: Keyword2ForeColor 		,back:Keyword2BackColor		,style: ""},
@@ -141,23 +143,23 @@ js{
 	});
 	
 	//特に強調,行の強調
-	Marker1ForeColor = getinistr( file ,section_val , "Marker1ForeColor");
-	Marker2ForeColor = getinistr( file ,section_val , "Marker2ForeColor");
-	Marker3ForeColor = getinistr( file ,section_val , "Marker3ForeColor");
-	Marker4ForeColor = getinistr( file ,section_val , "Marker4ForeColor");
-	Marker5ForeColor = getinistr( file ,section_val , "Marker5ForeColor");
-	Marker6ForeColor = getinistr( file ,section_val , "Marker6ForeColor");
-	Marker7ForeColor = getinistr( file ,section_val , "Marker7ForeColor");
-	Marker8ForeColor = getinistr( file ,section_val , "Marker8ForeColor");
+	Marker1ForeColor = getinistr2( file ,section_val , "Marker1ForeColor");
+	Marker2ForeColor = getinistr2( file ,section_val , "Marker2ForeColor");
+	Marker3ForeColor = getinistr2( file ,section_val , "Marker3ForeColor");
+	Marker4ForeColor = getinistr2( file ,section_val , "Marker4ForeColor");
+	Marker5ForeColor = getinistr2( file ,section_val , "Marker5ForeColor");
+	Marker6ForeColor = getinistr2( file ,section_val , "Marker6ForeColor");
+	Marker7ForeColor = getinistr2( file ,section_val , "Marker7ForeColor");
+	Marker8ForeColor = getinistr2( file ,section_val , "Marker8ForeColor");
 	
-	Marker1BackColor = getinistr( file ,section_val , "Marker1BackColor");
-	Marker2BackColor = getinistr( file ,section_val , "Marker2BackColor");
-	Marker3BackColor = getinistr( file ,section_val , "Marker3BackColor");
-	Marker4BackColor = getinistr( file ,section_val , "Marker4BackColor");
-	Marker5BackColor = getinistr( file ,section_val , "Marker5BackColor");
-	Marker6BackColor = getinistr( file ,section_val , "Marker6BackColor");
-	Marker7BackColor = getinistr( file ,section_val , "Marker7BackColor");
-	Marker8BackColor = getinistr( file ,section_val , "Marker8BackColor");
+	Marker1BackColor = getinistr2( file ,section_val , "Marker1BackColor");
+	Marker2BackColor = getinistr2( file ,section_val , "Marker2BackColor");
+	Marker3BackColor = getinistr2( file ,section_val , "Marker3BackColor");
+	Marker4BackColor = getinistr2( file ,section_val , "Marker4BackColor");
+	Marker5BackColor = getinistr2( file ,section_val , "Marker5BackColor");
+	Marker6BackColor = getinistr2( file ,section_val , "Marker6BackColor");
+	Marker7BackColor = getinistr2( file ,section_val , "Marker7BackColor");
+	Marker8BackColor = getinistr2( file ,section_val , "Marker8BackColor");
 	//特に強調 ※FB逆に設定 ※FはNormalを指定
 	configcolor({
 		especially1:	{text:GeneralBackColor			,back:Marker1BackColor		,style: ""},
@@ -177,9 +179,26 @@ js{
 		hilightline4:	{text:Marker8BackColor  		,back:""		,style: ""},
 		
 	});
-
-
-
+	
+	
+	
+	
+	//nullの場合はGeneralの値を使う
+	function getinistr2(file,section,str){
+		tmp =  getinistr( file,section,str );
+		
+		if(tmp===""){
+			if(str.match(/ForceColor/g) !== null) 
+				tmp  = getinistr( file ,section_val ,"GeneralForeColor");
+			else if(str.match(/BackColor/g) !== null)
+				tmp  = getinistr( file ,section_val ,"GeneralBackColor");
+			else
+				tmp  = getinistr( file ,section_val ,"GeneralForeColor");
+		}
+		//message(tmp);
+		return(tmp);
+	}
+	
 }
 
 
@@ -200,11 +219,11 @@ endmacro;
 
 
 loadfile:
-	$file_name="base16-apprentice.metheme";
-	$file_name="base16-apathy.metheme";
+	$$file_name="base16-apprentice.metheme";
+	$$file_name="base16-apathy.metheme";
 	
 	if($arg0 != "" && $arg0 !="rnd" ){
-		$file_name="";
+		$$file_name=$arg0;
 	}else{
 		
 		//file一覧
@@ -216,12 +235,12 @@ loadfile:
 		#c = getpropnum(#objFiles,"Count");
 		//message "ファイル数=" + str(#c) + "\n";
 		
-		#i=0;
+		#i=1;
 		while(1){
 			#objFile = getcollection(#objFiles);
 			if( #objFile == 0 ) break;
 			
-			$fileitm[#i]=getpropstr(#objFile,"Name");
+			$$fileitm[#i]=getpropstr(#objFile,"Name");
 			releaseobject #objFile;
 			#i=#i+1;
 		}
@@ -229,15 +248,39 @@ loadfile:
 		releaseobject #objFolder;
 		releaseobject #objFSO;
 		
+		if($arg0 != "rnd"){
+			//
+			
+			$$fileitm[0]="デフォ";
+			$$fileitm[#c+1]="ランダム";
+			menuarray $$fileitm,#c+2;
+			//message "result="+str(result);
+			if(result==0||result==1){
+				question "デフォ?";
+				if(result!=0){
+					configset currentconfigset;
+				}
+				call endmacro;
+				
+			}else if(result==(#c+2)){
+				//ランダムファイル設定
+				js{
+					var rnd = Math.floor(Math.random() * hidemaru.getVar("#c")+1);
+					hidemaru.setVar("#rnd",rnd);
+				}
+				$$file_name = $$fileitm[#rnd];
+				message "rnd:"+str(#rnd)+"\n"+$$file_name;
+			}else{
+				$$file_name = $$fileitm[result-1];
+			}
+		}
 		
-		menuarray $fileitm,#c;
-		$file_name=$fileitm[result-1];
-		message $file_name;
+		//message $$file_name;
 	}
 	
 	
 
-return $file_name;
+return $$file_name;
 
 
 
@@ -321,38 +364,4 @@ indent6
 indent7			
 indent8			
 
-
-
-
-それぞれの値は、色とスタイルのオブジェクトになります。
-色とスタイルのオブジェクトのプロパティは以下になります。
-text
-back
-style
-
-
-色は文字列で#から始まるRGB値か、以下の文字列のいずれかになります。
-transparent
-syswindow
-syswindowtext
-syshighlight
-syshighlighttext
-
-
-スタイルは、以下の文字列のいずれかになります。
-normal
-bold
-underline
-underline bold
-italic
-italic bold
-underline italic
-underline italic bold
-outline
-superbold
-shadow
-transparent
-
-
 */
-
