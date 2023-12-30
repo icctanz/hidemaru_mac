@@ -1,4 +1,4 @@
-// 
+// カラー設定(#xxxxxx)でカラーマーカー設定
 // 
 
 setcompatiblemode 0x10F|0x20000;
