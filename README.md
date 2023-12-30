@@ -3,9 +3,11 @@
 
 ・color_marker.MAC 
 #xxxxxxの色設定をその色でカラーマーカーする
- 
+
+
 ・mery_color.mac 
 　meryエディタのカラー設定(*.metheme)ファイルを秀丸に取り込む。ある程度なので微調整必要
+
 ・mery_color_rnd.mac 
 　mery_color.macのおまけ
 
