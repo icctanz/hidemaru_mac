@@ -3,17 +3,20 @@
 // 		https://www.haijin-boys.com/
 // 		https://www.haijin-boys.com/software/mery/mery-themes
 //
-// 設定の取り込みは完全に一致はしないので各自で調整必要
+// 当然のことですが設定は完全一致はしない場合や見にくい状態になる場合があるので微調整は必要です
 // 引数でファイル名指定可。引数に「rnd」指定でランダムファイル設定
-// 設定は色のみ。フォントスタイルや設定有効無効等は原則変わらないです(たぶん)
+// 設定は色のみ。フォントスタイルや設定有効無効等は変わらないです(たぶん)
 // 実行後は(一時的な設定)となるので、永続的に設定する際は適宜保存する必要あり
 // ※作成&動作確認時のVersion 秀丸Ver9.26、MerryVer3.6.4
-//
+
+
 setcompatiblemode 0x10F|0x00020000;
 debuginfo(0);
 
 //設定ファイルのパスを指定
-$config_path = currentmacrodirectory;
+$config_path = currentmacrodirectory+"\\";
+$config_path = @"C:\Users\m75q_user\Dropbox\800_dev\秀丸マクロ\color_set\";
+
 
 //bkup
 #x1 = x;
@@ -22,23 +25,23 @@ $config_path = currentmacrodirectory;
 #bkso2=searchoption2;
 $bksb =searchbuffer;
 
-disabledraw;
 
 
 //引数処理
 $arg0 = getarg(0);
 if($arg0 != "" && $arg0 != "rnd"){
 	$file = $config_path+$arg0;
-	if( existfile($file) == false ){message "param err";endmacro;}
+	if( existfile($file) == false ){message "param err"; call endmacro;}
 }
 
-if($arg0 == ""){
-	call loadfile;
-	//$file = $config_path+$file_name;
+if($arg0 == "" || $arg0 == "rnd"){
+	call loadfile $arg0;
 	$file = $config_path+$$return;
 	//message $file;
 }
 
+main:
+disabledraw;
 jsmode "WebView2";
 js{
 	
@@ -50,136 +53,142 @@ js{
 	
 	//セクション名取得
 	const found = tmp.match(/\[.+?\]/g);
-	const section_val = found[0].slice(1,found[0].length-1); //最初のsection
-	console.log(section_val);
-	
-	
-	//normal
-	GeneralForeColor = getinistr( file ,section_val ,"GeneralForeColor");
-	GeneralBackColor = getinistr( file ,section_val ,"GeneralBackColor");
-	configcolor({
-		normal:			{text: GeneralForeColor 		,back:GeneralBackColor		,style: ""}
-	});
-	
-	//num
-	IndicatorModifiedBackColor	= getinistr2( file ,section_val ,"IndicatorModifiedBackColor");
-	configcolor({
-		num:				{text:IndicatorModifiedBackColor	,back:GeneralBackColor			,style: ""},
-	});
-	
-	//select
-	SelectionForeColor		= getinistr2( file ,section_val ,"SelectionForeColor");
-	SelectionBackColor		= getinistr2( file ,section_val ,"SelectionBackColor");
-	//hilightfound
-	//search
-	SearchStringForeColor	= getinistr2( file ,section_val ,"SearchStringForeColor");
-	SearchStringBackColor	= getinistr2( file ,section_val ,"SearchStringBackColor");
-	
-	
-	//改行,EOF
-	CRLFForeColor			= getinistr2( file ,section_val ,"CRLFForeColor");
-	CRLFBackColor			= getinistr2( file ,section_val ,"CRLFBackColor");
-	EOFForeColor			= getinistr2( file ,section_val ,"EOFForeColor");
-	EOFBackColor			= getinistr2( file ,section_val ,"EOFBackColor");
-	
-	//tab
-	TabForeColor			= getinistr2( file ,section_val ,"TabForeColor");
-	TabBackColor			= getinistr2( file ,section_val ,"TabBackColor");
-	
-	//string
-	StringForeColor			= getinistr2( file ,section_val ,"StringForeColor");
-	StringBackColor			= getinistr2( file ,section_val ,"StringBackColor");
-	//comment
-	CommentForeColor		= getinistr2( file ,section_val ,"CommentForeColor");
-	CommentBackColor		= getinistr2( file ,section_val ,"CommentBackColor");
-	
-	//script
-	ScriptForeColor			= getinistr2( file ,section_val ,"ScriptForeColor");
-	ScriptBackColor			= getinistr2( file ,section_val ,"ScriptBackColor");
-	 
-	configcolor({
-		hilightfound:		{text:GeneralBackColor 		,back:GeneralForeColor		,style: ""},
-		Selection:			{text:SelectionForeColor 	,back:SelectionBackColor	,style: ""},
+	if(found!=null){
+		//null.空文字以外
+		const section_val = found[0].slice(1,found[0].length-1); //最初のsection
+		console.log(section_val);
 		
-		cr:					{text:CRLFForeColor 		,back:CRLFBackColor			,style: ""},
-		string:				{text:StringForeColor 		,back:StringBackColor		,style: ""},
-		comment:			{text:CommentForeColor 		,back:CommentBackColor		,style: ""},
-		tab:				{text:TabForeColor 			,back:TabBackColor			,style: ""},
-		script:				{text:ScriptForeColor 		,back:ScriptBackColor		,style: ""},
 		
-	});
-
-	
-	
-	
-	//強調表示1~8
-	Keyword1ForeColor = getinistr2( file ,section_val , "Keyword1ForeColor");
-	Keyword2ForeColor = getinistr2( file ,section_val , "Keyword2ForeColor");
-	Keyword3ForeColor = getinistr2( file ,section_val , "Keyword3ForeColor");
-	Keyword4ForeColor = getinistr2( file ,section_val , "Keyword4ForeColor");
-	Keyword5ForeColor = getinistr2( file ,section_val , "Keyword5ForeColor");
-	Keyword6ForeColor = getinistr2( file ,section_val , "Keyword6ForeColor");
-	Keyword7ForeColor = getinistr2( file ,section_val , "Keyword7ForeColor");
-	Keyword8ForeColor = getinistr2( file ,section_val , "Keyword8ForeColor");
-	
-	Keyword1BackColor = getinistr2( file ,section_val , "Keyword1BackColor");
-	Keyword2BackColor = getinistr2( file ,section_val , "Keyword2BackColor");
-	Keyword3BackColor = getinistr2( file ,section_val , "Keyword3BackColor");
-	Keyword4BackColor = getinistr2( file ,section_val , "Keyword4BackColor");
-	Keyword5BackColor = getinistr2( file ,section_val , "Keyword5BackColor");
-	Keyword6BackColor = getinistr2( file ,section_val , "Keyword6BackColor");
-	Keyword7BackColor = getinistr2( file ,section_val , "Keyword7BackColor");
-	Keyword8BackColor = getinistr2( file ,section_val , "Keyword8BackColor");
-	configcolor({
-		hilight1:	{text: Keyword1ForeColor 		,back:Keyword1BackColor		,style: ""},
-		hilight2:	{text: Keyword2ForeColor 		,back:Keyword2BackColor		,style: ""},
-		hilight3:	{text: Keyword3ForeColor 		,back:Keyword3BackColor		,style: ""},
-		hilight4:	{text: Keyword4ForeColor 		,back:Keyword4BackColor		,style: ""},
-		hilight5:	{text: Keyword5ForeColor 		,back:Keyword5BackColor		,style: ""},
-		hilight6:	{text: Keyword6ForeColor 		,back:Keyword6BackColor		,style: ""},
-		hilight7:	{text: Keyword7ForeColor 		,back:Keyword7BackColor		,style: ""},
-		hilight8:	{text: Keyword8ForeColor 		,back:Keyword8BackColor		,style: ""},
+		//normal
+		GeneralForeColor = getinistr( file ,section_val ,"GeneralForeColor");
+		GeneralBackColor = getinistr( file ,section_val ,"GeneralBackColor");
+		configcolor({
+			normal:			{text: GeneralForeColor 		,back:GeneralBackColor		,style: ""}
+		});
 		
-	});
-	
-	//特に強調,行の強調
-	Marker1ForeColor = getinistr2( file ,section_val , "Marker1ForeColor");
-	Marker2ForeColor = getinistr2( file ,section_val , "Marker2ForeColor");
-	Marker3ForeColor = getinistr2( file ,section_val , "Marker3ForeColor");
-	Marker4ForeColor = getinistr2( file ,section_val , "Marker4ForeColor");
-	Marker5ForeColor = getinistr2( file ,section_val , "Marker5ForeColor");
-	Marker6ForeColor = getinistr2( file ,section_val , "Marker6ForeColor");
-	Marker7ForeColor = getinistr2( file ,section_val , "Marker7ForeColor");
-	Marker8ForeColor = getinistr2( file ,section_val , "Marker8ForeColor");
-	
-	Marker1BackColor = getinistr2( file ,section_val , "Marker1BackColor");
-	Marker2BackColor = getinistr2( file ,section_val , "Marker2BackColor");
-	Marker3BackColor = getinistr2( file ,section_val , "Marker3BackColor");
-	Marker4BackColor = getinistr2( file ,section_val , "Marker4BackColor");
-	Marker5BackColor = getinistr2( file ,section_val , "Marker5BackColor");
-	Marker6BackColor = getinistr2( file ,section_val , "Marker6BackColor");
-	Marker7BackColor = getinistr2( file ,section_val , "Marker7BackColor");
-	Marker8BackColor = getinistr2( file ,section_val , "Marker8BackColor");
-	//特に強調 ※FB逆に設定 ※FはNormalを指定
-	configcolor({
-		especially1:	{text:GeneralBackColor			,back:Marker1BackColor		,style: ""},
-		especially2:	{text:GeneralBackColor			,back:Marker2BackColor		,style: ""},
-		especially3:	{text:GeneralBackColor			,back:Marker3BackColor		,style: ""},
-		especially4:	{text:GeneralBackColor			,back:Marker4BackColor		,style: ""},
-		//especially1:	{text:Marker1BackColor			,back:Marker1ForeColor		,style: ""},
-		//especially2:	{text:Marker2BackColor			,back:Marker2ForeColor		,style: ""},
-		//especially3:	{text:Marker3BackColor			,back:Marker3ForeColor		,style: ""},
-		//especially4:	{text:Marker4BackColor			,back:Marker4ForeColor		,style: ""},
-	});
-	//行の強調
-	configcolor({
-		hilightline1:	{text:Marker5BackColor  		,back:""		,style: ""},
-		hilightline2:	{text:Marker6BackColor  		,back:""		,style: ""},
-		hilightline3:	{text:Marker7BackColor  		,back:""		,style: ""},
-		hilightline4:	{text:Marker8BackColor  		,back:""		,style: ""},
+		//num
+		IndicatorModifiedBackColor	= getinistr2( file ,section_val ,"IndicatorModifiedBackColor");
+		configcolor({
+			num:				{text:IndicatorModifiedBackColor	,back:GeneralBackColor			,style: ""},
+		});
 		
-	});
-	
+		//select
+		SelectionForeColor		= getinistr2( file ,section_val ,"SelectionForeColor");
+		SelectionBackColor		= getinistr2( file ,section_val ,"SelectionBackColor");
+		//hilightfound
+		//search
+		SearchStringForeColor	= getinistr2( file ,section_val ,"SearchStringForeColor");
+		SearchStringBackColor	= getinistr2( file ,section_val ,"SearchStringBackColor");
+		
+		
+		//改行,EOF
+		CRLFForeColor			= getinistr2( file ,section_val ,"CRLFForeColor");
+		CRLFBackColor			= getinistr2( file ,section_val ,"CRLFBackColor");
+		EOFForeColor			= getinistr2( file ,section_val ,"EOFForeColor");
+		EOFBackColor			= getinistr2( file ,section_val ,"EOFBackColor");
+		
+		//tab
+		TabForeColor			= getinistr2( file ,section_val ,"TabForeColor");
+		TabBackColor			= getinistr2( file ,section_val ,"TabBackColor");
+		
+		//string
+		StringForeColor			= getinistr2( file ,section_val ,"StringForeColor");
+		StringBackColor			= getinistr2( file ,section_val ,"StringBackColor");
+		//comment
+		CommentForeColor		= getinistr2( file ,section_val ,"CommentForeColor");
+		CommentBackColor		= getinistr2( file ,section_val ,"CommentBackColor");
+		
+		//script
+		ScriptForeColor			= getinistr2( file ,section_val ,"ScriptForeColor");
+		ScriptBackColor			= getinistr2( file ,section_val ,"ScriptBackColor");
+		 
+		configcolor({
+			hilightfound:		{text:GeneralBackColor 		,back:GeneralForeColor		,style: ""},
+			Selection:			{text:SelectionForeColor 	,back:SelectionBackColor	,style: ""},
+			
+			cr:					{text:CRLFForeColor 		,back:CRLFBackColor			,style: ""},
+			string:				{text:StringForeColor 		,back:StringBackColor		,style: ""},
+			comment:			{text:CommentForeColor 		,back:CommentBackColor		,style: ""},
+			tab:				{text:TabForeColor 			,back:TabBackColor			,style: ""},
+			script:				{text:ScriptForeColor 		,back:ScriptBackColor		,style: ""},
+			
+		});
+		
+		
+		
+		//強調表示1~8
+		Keyword1ForeColor = getinistr2( file ,section_val , "Keyword1ForeColor");
+		Keyword2ForeColor = getinistr2( file ,section_val , "Keyword2ForeColor");
+		Keyword3ForeColor = getinistr2( file ,section_val , "Keyword3ForeColor");
+		Keyword4ForeColor = getinistr2( file ,section_val , "Keyword4ForeColor");
+		Keyword5ForeColor = getinistr2( file ,section_val , "Keyword5ForeColor");
+		Keyword6ForeColor = getinistr2( file ,section_val , "Keyword6ForeColor");
+		Keyword7ForeColor = getinistr2( file ,section_val , "Keyword7ForeColor");
+		Keyword8ForeColor = getinistr2( file ,section_val , "Keyword8ForeColor");
+		
+		Keyword1BackColor = getinistr2( file ,section_val , "Keyword1BackColor");
+		Keyword2BackColor = getinistr2( file ,section_val , "Keyword2BackColor");
+		Keyword3BackColor = getinistr2( file ,section_val , "Keyword3BackColor");
+		Keyword4BackColor = getinistr2( file ,section_val , "Keyword4BackColor");
+		Keyword5BackColor = getinistr2( file ,section_val , "Keyword5BackColor");
+		Keyword6BackColor = getinistr2( file ,section_val , "Keyword6BackColor");
+		Keyword7BackColor = getinistr2( file ,section_val , "Keyword7BackColor");
+		Keyword8BackColor = getinistr2( file ,section_val , "Keyword8BackColor");
+		configcolor({
+			hilight1:	{text: Keyword1ForeColor 		,back:Keyword1BackColor		,style: ""},
+			hilight2:	{text: Keyword2ForeColor 		,back:Keyword2BackColor		,style: ""},
+			hilight3:	{text: Keyword3ForeColor 		,back:Keyword3BackColor		,style: ""},
+			hilight4:	{text: Keyword4ForeColor 		,back:Keyword4BackColor		,style: ""},
+			hilight5:	{text: Keyword5ForeColor 		,back:Keyword5BackColor		,style: ""},
+			hilight6:	{text: Keyword6ForeColor 		,back:Keyword6BackColor		,style: ""},
+			hilight7:	{text: Keyword7ForeColor 		,back:Keyword7BackColor		,style: ""},
+			hilight8:	{text: Keyword8ForeColor 		,back:Keyword8BackColor		,style: ""},
+			
+		});
+		
+		//特に強調,行の強調
+		Marker1ForeColor = getinistr2( file ,section_val , "Marker1ForeColor");
+		Marker2ForeColor = getinistr2( file ,section_val , "Marker2ForeColor");
+		Marker3ForeColor = getinistr2( file ,section_val , "Marker3ForeColor");
+		Marker4ForeColor = getinistr2( file ,section_val , "Marker4ForeColor");
+		Marker5ForeColor = getinistr2( file ,section_val , "Marker5ForeColor");
+		Marker6ForeColor = getinistr2( file ,section_val , "Marker6ForeColor");
+		Marker7ForeColor = getinistr2( file ,section_val , "Marker7ForeColor");
+		Marker8ForeColor = getinistr2( file ,section_val , "Marker8ForeColor");
+		
+		Marker1BackColor = getinistr2( file ,section_val , "Marker1BackColor");
+		Marker2BackColor = getinistr2( file ,section_val , "Marker2BackColor");
+		Marker3BackColor = getinistr2( file ,section_val , "Marker3BackColor");
+		Marker4BackColor = getinistr2( file ,section_val , "Marker4BackColor");
+		Marker5BackColor = getinistr2( file ,section_val , "Marker5BackColor");
+		Marker6BackColor = getinistr2( file ,section_val , "Marker6BackColor");
+		Marker7BackColor = getinistr2( file ,section_val , "Marker7BackColor");
+		Marker8BackColor = getinistr2( file ,section_val , "Marker8BackColor");
+		//特に強調 ※FB逆に設定 ※FはNormalを指定
+		configcolor({
+			especially1:	{text:GeneralBackColor			,back:Marker1BackColor		,style: ""},
+			especially2:	{text:GeneralBackColor			,back:Marker2BackColor		,style: ""},
+			especially3:	{text:GeneralBackColor			,back:Marker3BackColor		,style: ""},
+			especially4:	{text:GeneralBackColor			,back:Marker4BackColor		,style: ""},
+			//especially1:	{text:Marker1BackColor			,back:Marker1ForeColor		,style: ""},
+			//especially2:	{text:Marker2BackColor			,back:Marker2ForeColor		,style: ""},
+			//especially3:	{text:Marker3BackColor			,back:Marker3ForeColor		,style: ""},
+			//especially4:	{text:Marker4BackColor			,back:Marker4ForeColor		,style: ""},
+		});
+		//行の強調
+		configcolor({
+			hilightline1:	{text:Marker5BackColor  		,back:""		,style: ""},
+			hilightline2:	{text:Marker6BackColor  		,back:""		,style: ""},
+			hilightline3:	{text:Marker7BackColor  		,back:""		,style: ""},
+			hilightline4:	{text:Marker8BackColor  		,back:""		,style: ""},
+			
+		});
+		
+		
+	}
+	else{
+		hidemaruGlobal.message ("設定エラー(iniのセクション設定が無い)\n"+file);
+	}
 	
 	
 	
@@ -189,11 +198,11 @@ js{
 		
 		if(tmp===""){
 			if(str.match(/ForceColor/g) !== null) 
-				tmp  = getinistr( file ,section_val ,"GeneralForeColor");
+				tmp  = getinistr( file ,section ,"GeneralForeColor");
 			else if(str.match(/BackColor/g) !== null)
-				tmp  = getinistr( file ,section_val ,"GeneralBackColor");
+				tmp  = getinistr( file ,section ,"GeneralBackColor");
 			else
-				tmp  = getinistr( file ,section_val ,"GeneralForeColor");
+				tmp  = getinistr( file ,section ,"GeneralForeColor");
 		}
 		//message(tmp);
 		return(tmp);
@@ -218,9 +227,8 @@ endmacro;
 
 
 
+
 loadfile:
-	$$file_name="base16-apprentice.metheme";
-	$$file_name="base16-apathy.metheme";
 	
 	if($arg0 != "" && $arg0 !="rnd" ){
 		$$file_name=$arg0;
@@ -235,44 +243,52 @@ loadfile:
 		#c = getpropnum(#objFiles,"Count");
 		//message "ファイル数=" + str(#c) + "\n";
 		
-		#i=1;
+		#i=0;
 		while(1){
 			#objFile = getcollection(#objFiles);
 			if( #objFile == 0 ) break;
 			
-			$$fileitm[#i]=getpropstr(#objFile,"Name");
-			releaseobject #objFile;
-			#i=#i+1;
+			$$name = getpropstr(#objFile,"Name");
+			if( strstr($$name,".metheme") >0 ){
+				#i=#i+1;
+				$$fileitm[#i]=getpropstr(#objFile,"Name");
+				releaseobject #objFile;
+			}
 		}
 		releaseobject #objFiles;
 		releaseobject #objFolder;
 		releaseobject #objFSO;
+		//message str(#c)+"\n"+str(#i);
 		
 		if($arg0 != "rnd"){
 			//
 			
 			$$fileitm[0]="デフォ";
-			$$fileitm[#c+1]="ランダム";
-			menuarray $$fileitm,#c+2;
-			//message "result="+str(result);
-			if(result==0||result==1){
+			$$fileitm[#i+1]="ランダム";
+			menuarray $$fileitm,#i+2;
+			##sel=result;
+			//message "##sel="+str(##sel);
+			if(##sel==0||##sel==1){
 				question "デフォ?";
-				if(result!=0){
+				if(##sel != 0){
 					configset currentconfigset;
 				}
 				call endmacro;
 				
-			}else if(result==(#c+2)){
+			}else if( ##sel==(#i+2) ){
 				//ランダムファイル設定
-				js{
-					var rnd = Math.floor(Math.random() * hidemaru.getVar("#c")+1);
-					hidemaru.setVar("#rnd",rnd);
-				}
-				$$file_name = $$fileitm[#rnd];
-				message "rnd:"+str(#rnd)+"\n"+$$file_name;
 			}else{
-				$$file_name = $$fileitm[result-1];
+				$$file_name = $$fileitm[##sel-1];
 			}
+		}
+		if( $arg0 =="rnd" || ##sel==(#i+2) ){
+			//ランダムファイル設定
+			js{
+				var rnd = Math.floor(Math.random() * hidemaru.getVar("#i")+1);
+				hidemaru.setVar("#rnd",rnd);
+			}
+			$$file_name = $$fileitm[#rnd];
+			//message "rnd:"+str(#rnd)+"\n"+$$file_name;
 		}
 		
 		//message $$file_name;
@@ -363,5 +379,243 @@ indent5
 indent6			
 indent7			
 indent8			
+
+
+
+
+それぞれの値は、色とスタイルのオブジェクトになります。
+色とスタイルのオブジェクトのプロパティは以下になります。
+text
+back
+style
+
+
+色は文字列で#から始まるRGB値か、以下の文字列のいずれかになります。
+transparent
+syswindow
+syswindowtext
+syshighlight
+syshighlighttext
+
+
+スタイルは、以下の文字列のいずれかになります。
+normal
+bold
+underline
+underline bold
+italic
+italic bold
+underline italic
+underline italic bold
+outline
+superbold
+shadow
+transparent
+
+
+*/
+
+
+
+/*
+■meryの設定
+
+GeneralForeColor=#81B5AC
+GeneralBackColor=#031A16
+GeneralStyle=0
+SelectionForeColor=
+SelectionBackColor=#389C8C
+SelectionStyle=0
+MultiSelectionForeColor=
+MultiSelectionBackColor=
+MultiSelectionStyle=0
+CaretColor=
+ImeCaretColor=
+CurrentLineForeColor=
+CurrentLineBackColor=
+CurrentLineStyle=0
+EvenLinesForeColor=
+EvenLinesBackColor=
+EvenLinesStyle=0
+HyperlinkForeColor=#3E7996
+HyperlinkBackColor=
+HyperlinkStyle=4
+StringForeColor=#883E96
+StringBackColor=
+StringStyle=0
+CommentForeColor=#2B685E
+CommentBackColor=
+CommentStyle=0
+ScriptForeColor=
+ScriptBackColor=
+ScriptStyle=0
+BracketForeColor=
+BracketBackColor=
+BracketStyle=1
+TagForeColor=#81B5AC
+TagBackColor=
+TagStyle=0
+Keyword1ForeColor=#4C963E
+Keyword1BackColor=
+Keyword1Style=0
+Keyword2ForeColor=#3E9688
+Keyword2BackColor=
+Keyword2Style=0
+Keyword3ForeColor=#3E7996
+Keyword3BackColor=
+Keyword3Style=0
+Keyword4ForeColor=#963E4C
+Keyword4BackColor=
+Keyword4Style=0
+Keyword5ForeColor=#3E4C96
+Keyword5BackColor=
+Keyword5Style=0
+Keyword6ForeColor=#96883E
+Keyword6BackColor=
+Keyword6Style=0
+Keyword7ForeColor=#883E96
+Keyword7BackColor=
+Keyword7Style=0
+Keyword8ForeColor=#3E965B
+Keyword8BackColor=
+Keyword8Style=0
+CRLFForeColor=#2B685E
+CRLFBackColor=
+CRLFStyle=0
+WrapForeColor=#2B685E
+WrapBackColor=
+WrapStyle=0
+TabForeColor=#2B685E
+TabBackColor=
+TabStyle=0
+EOFForeColor=#2B685E
+EOFBackColor=
+EOFStyle=0
+CaretForeColor=#2B685E
+CaretBackColor=
+CaretStyle=0
+LineNumbersForeColor=
+LineNumbersBackColor=
+LineNumbersStyle=0
+ChangedLineNumbersForeColor=
+ChangedLineNumbersBackColor=
+ChangedLineNumbersStyle=0
+SelectedLineNumbersForeColor=
+SelectedLineNumbersBackColor=
+SelectedLineNumbersStyle=0
+RulerForeColor=
+RulerBackColor=
+RulerStyle=0
+VerticalLineForeColor=#2B685E
+VerticalLineBackColor=
+VerticalLineStyle=0
+IndentGuidesForeColor=#293C39
+IndentGuidesBackColor=
+IndentGuidesStyle=0
+SBAlphabeticForeColor=
+SBAlphabeticBackColor=
+SBAlphabeticStyle=0
+SBNumberForeColor=
+SBNumberBackColor=
+SBNumberStyle=0
+SBSymbolForeColor=
+SBSymbolBackColor=
+SBSymbolStyle=0
+SBKatakanaForeColor=
+SBKatakanaBackColor=
+SBKatakanaStyle=0
+SBSpaceForeColor=#2B685E
+SBSpaceBackColor=
+SBSpaceStyle=0
+DBAlphabetForeColor=
+DBAlphabetBackColor=
+DBAlphabetStyle=0
+DBNumberForeColor=
+DBNumberBackColor=
+DBNumberStyle=0
+DBSymbolForeColor=
+DBSymbolBackColor=
+DBSymbolStyle=0
+DBHiraganaForeColor=
+DBHiraganaBackColor=
+DBHiraganaStyle=0
+DBKatakanaForeColor=
+DBKatakanaBackColor=
+DBKatakanaStyle=0
+DBKanjiForeColor=
+DBKanjiBackColor=
+DBKanjiStyle=0
+DBSpaceForeColor=#2B685E
+DBSpaceBackColor=
+DBSpaceStyle=0
+BookmarkForeColor=
+BookmarkBackColor=#655645
+BookmarkStyle=0
+SpellForeColor=
+SpellBackColor=
+SpellStyle=8
+SearchStringForeColor=
+SearchStringBackColor=#603204
+SearchStringStyle=0
+AutoMarkerForeColor=
+AutoMarkerBackColor=
+AutoMarkerStyle=4
+Marker1ForeColor=
+Marker1BackColor=#FD504E
+Marker1Style=0
+Marker2ForeColor=
+Marker2BackColor=#FDB241
+Marker2Style=0
+Marker3ForeColor=
+Marker3BackColor=#FFDA3A
+Marker3Style=0
+Marker4ForeColor=
+Marker4BackColor=#67F032
+Marker4Style=0
+Marker5ForeColor=
+Marker5BackColor=#4199FF
+Marker5Style=0
+Marker6ForeColor=
+Marker6BackColor=#E98FFF
+Marker6Style=0
+Marker7ForeColor=
+Marker7BackColor=#FD5A8F
+Marker7Style=0
+Marker8ForeColor=
+Marker8BackColor=#D2AD7B
+Marker8Style=0
+IndicatorModifiedForeColor=
+IndicatorModifiedBackColor=#EFF284
+IndicatorModifiedStyle=0
+IndicatorSavedForeColor=
+IndicatorSavedBackColor=#577430
+IndicatorSavedStyle=0
+ScrollBarModifiedForeColor=
+ScrollBarModifiedBackColor=
+ScrollBarModifiedStyle=0
+ScrollBarSavedForeColor=
+ScrollBarSavedBackColor=
+ScrollBarSavedStyle=0
+ScrollBarBookmarkForeColor=
+ScrollBarBookmarkBackColor=
+ScrollBarBookmarkStyle=0
+ScrollBarFoundForeColor=
+ScrollBarFoundBackColor=
+ScrollBarFoundStyle=0
+ScrollBarCaretForeColor=
+ScrollBarCaretBackColor=
+ScrollBarCaretStyle=0
+ForeignForeColor=
+ForeignBackColor=
+ForeignStyle=0
+OtherForeColor=
+OtherBackColor=
+OtherStyle=0
+ControlForeColor=#2B685E
+ControlBackColor=
+ControlStyle=0
+InvalidForeColor=#031A16
+InvalidBackColor=#3E9688
+InvalidStyle=0
 
 */
