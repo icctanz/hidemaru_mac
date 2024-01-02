@@ -23,7 +23,7 @@ $config_path = currentmacrodirectory+"\\";
 #bkso =searchoption|0x00000010;
 #bkso2=searchoption2;
 $bksb =searchbuffer;
-
+#hlf = foundhilighting; 
 
 
 //引数処理
@@ -62,14 +62,9 @@ js{
 		GeneralForeColor = getinistr( file ,section_val ,"GeneralForeColor");
 		GeneralBackColor = getinistr( file ,section_val ,"GeneralBackColor");
 		configcolor({
-			normal:			{text: GeneralForeColor 		,back:GeneralBackColor		,style: ""}
+			normal:				{text: GeneralForeColor 		,back:GeneralBackColor		,style: ""}
 		});
 		
-		//num
-		IndicatorModifiedBackColor	= getinistr2( file ,section_val ,"IndicatorModifiedBackColor");
-		configcolor({
-			num:				{text:IndicatorModifiedBackColor	,back:GeneralBackColor			,style: ""},
-		});
 		
 		//select
 		SelectionForeColor		= getinistr2( file ,section_val ,"SelectionForeColor");
@@ -184,6 +179,28 @@ js{
 		});
 		
 		
+		//tree アウトライン解析の枠のレベルの色
+		configcolor({
+			tree1:	{text: Keyword1ForeColor 		,back:Keyword1BackColor		,style: ""},
+			tree2:	{text: Keyword2ForeColor 		,back:Keyword2BackColor		,style: ""},
+			tree3:	{text: Keyword3ForeColor 		,back:Keyword3BackColor		,style: ""},
+			tree4:	{text: Keyword4ForeColor 		,back:Keyword4BackColor		,style: ""},
+			tree5:	{text: Keyword5ForeColor 		,back:Keyword5BackColor		,style: ""},
+			tree6:	{text: Keyword6ForeColor 		,back:Keyword6BackColor		,style: ""},
+			tree7:	{text: Keyword7ForeColor 		,back:Keyword7BackColor		,style: ""},
+			tree8:	{text: Keyword8ForeColor 		,back:Keyword8BackColor		,style: ""},
+			
+		});
+		
+		
+		//num
+		NumForeColor = cnv_color(Keyword1ForeColor);
+		configcolor({
+			num:				{text:NumForeColor.complementaryColor	,back:GeneralBackColor			,style: ""},
+		});
+	
+	
+	
 	}
 	else{
 		hidemaruGlobal.message ("設定エラー(iniのセクション設定が無い)\n"+file);
@@ -193,7 +210,7 @@ js{
 	
 	//nullの場合はGeneralの値を使う
 	function getinistr2(file,section,str){
-		tmp =  getinistr( file,section,str );
+		var tmp =  getinistr( file,section,str );
 		
 		if(tmp===""){
 			if(str.match(/ForceColor/g) !== null) 
@@ -207,13 +224,51 @@ js{
 		return(tmp);
 	}
 	
+	
+	//補色,半転色(入力「#rrggbb」)
+	function cnv_color(RGB){
+		var rgb = RGB.replace("#", "");
+		var rr=RGB.slice(1,3);
+		var gg=RGB.slice(3,5);
+		var bb=RGB.slice(5,8);
+		var r = parseInt(rr, 16);
+		var g = parseInt(gg, 16);
+		var b = parseInt(bb, 16);
+		
+		var yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+		var dl = (yiq >= 128) ? 'light' : 'dark';
+		
+		var invertedColor      = '#' + (0xFFFFFF - parseInt(rgb, 16)).toString(16).padStart(6, '0');
+		
+		var sum = Math.max(r,g,b)+Math.min(r,g,b);
+		var sumR = sum-r;
+		var sumG = sum-g;
+		var sumB = sum-b;
+		var complementaryColor = "#"
+		+('00' + sumR.toString(16)).slice( -2 )
+		+('00' + sumG.toString(16)).slice( -2 )
+		+('00' + sumB.toString(16)).slice( -2 );
+		
+		console.log("rgb=" + rgb);
+		console.log("rr=" + rr+"  gg=" + gg+"  bb=" + bb);
+		console.log("complementaryColor =" + complementaryColor);
+		console.log("invertedColor=" + invertedColor);
+		console.log("yiq=" + yiq +"   dl=" + dl);
+		
+		return {
+			dl: dl,
+			invertedColor: invertedColor,
+			complementaryColor: complementaryColor,
+		};
+	}
 }
 
 
 
 endmacro:
-setsearch $bksb, #bkso|0x00000010|0x00000020, #bkso2;
 hilightfound 0;
+setsearch $bksb, #bkso|0x00000010|0x00000020, #bkso2;
+hilightfound #hlf;
 moveto #x1,#y1;
 enabledraw;
 redraw;
