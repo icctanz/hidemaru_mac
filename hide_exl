@@ -1,0 +1,122 @@
+// Excelのセル情報を取得し、Hidemaruエディタで処理するマクロ
+
+// ダミーファイルのパス設定
+$dummy_file="C:\Users\SB63ad1103.DNJP\_work\tmp_hidemaru_bkup\dummy_exl.txt";
+
+// ファイルの存在チェック
+if (fileexist($dummy_file) == 0) {
+    message "ファイルが存在しません。"; 
+    endmacro;
+}
+
+// ファイルから情報を取得
+$s_path = getini($dummy_file, "cell_info", "s_path");
+$s_file = getini($dummy_file, "cell_info", "s_file");
+$s_sheet = getini($dummy_file, "cell_info", "s_sheet");
+$s_pos = getini($dummy_file, "cell_info", "s_pos");
+$s_row = getini($dummy_file, "cell_info", "s_row");
+$s_col = getini($dummy_file, "cell_info", "s_col");
+$s_pid = getini($dummy_file, "cell_info", "s_pid");
+$s_cap = getini($dummy_file, "cell_info", "s_cap");
+
+// 取得データの表示
+message "取得したExcel情報: \n"
+    + "パス: " + $s_path + "\n"
+    + "ファイル名: " + $s_file + "\n"
+    + "シート名: " + $s_sheet + "\n"
+    + "セル位置: " + $s_pos + "\n"
+    + "行: " + $s_row + " / 列: " + $s_col + "\n";
+
+// カーソル移動処理
+searchdown ".*" . regular;
+if (result == false) {
+    message "指定のセルが見つかりません。";
+    endmacro;
+}
+
+// Excelオブジェクトの取得
+#objXls = getobject($s_path + "\\" + $s_file);
+if (objecterror(#objXls)) {
+    message "Excelオブジェクトを取得できませんでした。";
+    endmacro;
+}
+
+// シートとセルの選択
+#objSheet = member(#objXls, "Sheets", $s_sheet);
+#objCell = member(#objSheet, "Cells", int($s_row), int($s_col));
+
+// セルの内容を更新
+setpropstr #objCell, "Value", "新しい値";
+
+// Excelをアクティブ化
+callevent #objXls, "Activate";
+callevent #objCell, "Activate";
+
+// オブジェクトの解放
+releaseobject #objXls;
+releaseobject #objCell;
+
+endmacro;
+
+
+
+
+
+'// Excelの情報をHidemaruエディタで開く
+Private Declare Function GetWindowThreadProcessId Lib "user32.dll" (ByVal hWnd As Long, lpdwProcessId As Long) As Long
+
+Sub To_秀丸()
+    Dim path As String
+    Dim RetVal
+    Dim C1, C2, C3, filtercol As Long
+    Dim pid As Long
+
+    ' ExcelのプロセスID取得
+    pid = Application.hWnd
+    Call GetWindowThreadProcessId(Application.hWnd, pid)
+
+    ' 保存するファイルのパス
+    path = "C:\Users\SB63ad1103.DNJP\_work\tmp_hidemaru_bkup\dummy_exl.txt"
+
+    ' テキストファイルに書き出し
+    Open path For Output As #1
+    Print #1, Application.ActiveCell.Value
+    Print #1, "[cell_info]"
+    Print #1, "s_path=" & Application.ActiveWorkbook.path
+    Print #1, "s_file=" & Application.ActiveWorkbook.Name
+    Print #1, "s_sheet=" & Application.ActiveSheet.Name
+
+    ' セルの表示位置
+    filtercol = Application.ActiveCell.Column
+    C1 = (filtercol - 1) Mod 26
+    C2 = ((filtercol - 27) / 26) Mod 26
+    C3 = (((filtercol - 703) / 1378 - 702))
+
+    If filtercol < 26 Then
+        Print #1, "s_pos=" & Chr(64 + filtercol) & Application.ActiveCell.Row
+    Else
+        Print #1, "s_pos=" & Chr(65 + C3) & Chr(65 + C2) & Chr(65 + C1) & Application.ActiveCell.Row
+    End If
+
+    Print #1, "s_col=" & Application.ActiveCell.Column
+    Print #1, "s_row=" & Application.ActiveCell.Row
+    Print #1, "s_title=" & Application.ActiveCell.Column & "列" & Application.ActiveCell.Row & "行"
+    Print #1, "s_cap=" & Application.Caption
+    Print #1, "s_hWnd=" & Application.hWnd
+    Print #1, "s_pid=" & pid
+
+    ' 列位置を3段階に分けて出力
+    Print #1, "[s_pos1]" & Chr(65 + Int((filtercol - 703) / (1378 - 702)))
+    Print #1, "[s_pos2]" & Chr(65 + Int((filtercol - 27) / 26))
+    Print #1, "[s_pos3]" & Chr(65 + ((filtercol - 1) Mod 26))
+
+    Close #1
+
+    ' Hidemaruエディタでファイルを開く
+    RetVal = Shell("C:\Program Files (x86)\Hidemaru\Hidemaru.exe /m5 /次文書位置 MAC " & path, 1)
+    RetVal = Shell("C:\Program Files (x86)\Hidemaru\Hidemaru.exe /m5 " & path, 1)
+End Sub
+
+
+
+
