@@ -1,62 +1,119 @@
-// Excelのセル情報を取得し、Hidemaruエディタで処理するマクロ
+// Hidemaruエディタの内容を指定のExcelのセルにコピペするマクロ
 
-// ダミーファイルのパス設定
-$dummy_file="C:\Users\SB63ad1103.DNJP\_work\tmp_hidemaru_bkup\dummy_exl.txt";
 
-// ファイルの存在チェック
-if (fileexist($dummy_file) == 0) {
-    message "ファイルが存在しません。"; 
-    endmacro;
-}
+MAIN:
+	// ダミーファイルのパス設定
+	$dummy_file = "c:\\temp\\tmp_hidemaru\\dummy_exl.txt";
 
-// ファイルから情報を取得
-$s_path = getini($dummy_file, "cell_info", "s_path");
-$s_file = getini($dummy_file, "cell_info", "s_file");
-$s_sheet = getini($dummy_file, "cell_info", "s_sheet");
-$s_pos = getini($dummy_file, "cell_info", "s_pos");
-$s_row = getini($dummy_file, "cell_info", "s_row");
-$s_col = getini($dummy_file, "cell_info", "s_col");
-$s_pid = getini($dummy_file, "cell_info", "s_pid");
-$s_cap = getini($dummy_file, "cell_info", "s_cap");
+	// カレントファイルのチェック
+	if(filename != $dummy_file){
+		message "カレントファイル名異常"+"\n入力: "+filename+"\n要求: "+$dummy_file;
+		endmacro;
+	}
 
-// 取得データの表示
-message "取得したExcel情報: \n"
-    + "パス: " + $s_path + "\n"
-    + "ファイル名: " + $s_file + "\n"
-    + "シート名: " + $s_sheet + "\n"
-    + "セル位置: " + $s_pos + "\n"
-    + "行: " + $s_row + " / 列: " + $s_col + "\n";
+	// ファイルから情報を取得
+	$s_path = getinistr($dummy_file, "cell_info", "s_path");
+	$s_file = getinistr($dummy_file, "cell_info", "s_file");
+	$s_sheet= getinistr($dummy_file, "cell_info", "s_sheet");
+	$s_pos  = getinistr($dummy_file, "cell_info", "s_pos");
+	#s_row  = getininum($dummy_file, "cell_info", "s_row");
+	#s_col  = getininum($dummy_file, "cell_info", "s_col");
+	#s_pid  = getininum($dummy_file, "cell_info", "s_pid");
+	$s_cap  = getinistr($dummy_file, "cell_info", "s_cap");
 
-// カーソル移動処理
-searchdown ".*" . regular;
-if (result == false) {
-    message "指定のセルが見つかりません。";
-    endmacro;
-}
+	// [debug]取得データの表示
+	//message "取得したExcel情報: \n"
+	//    + "パス:       " + $s_path  + "\n"
+	//    + "ファイル名: " + $s_file  + "\n"
+	//    + "シート名:   " + $s_sheet + "\n"
+	//    + "セル位置:   " + $s_pos   + "\n"
+	//    + "行: " + str(#s_row) + " / 列: " + str(#s_col) + "\n";
 
-// Excelオブジェクトの取得
-#objXls = getobject($s_path + "\\" + $s_file);
-if (objecterror(#objXls)) {
-    message "Excelオブジェクトを取得できませんでした。";
-    endmacro;
-}
 
-// シートとセルの選択
-#objSheet = member(#objXls, "Sheets", $s_sheet);
-#objCell = member(#objSheet, "Cells", int($s_row), int($s_col));
+	//セル入力内容取得
+	moveto 0,0;
+	searchdown "^--------------------------------(\\**)$" , regular;
+	if (result == false) {
+	    message "変です。セルに書き戻す値が認識できない";
+	    call ENDMAC;
+	    endmacro;
+	}
+	left;
+	$val=gettext2(0,0,column,lineno);
 
-// セルの内容を更新
-setpropstr #objCell, "Value", "新しい値";
+	right;
+	golineend2;
+	overwrite "*";
+	savelf;
 
-// Excelをアクティブ化
-callevent #objXls, "Activate";
-callevent #objCell, "Activate";
 
-// オブジェクトの解放
-releaseobject #objXls;
-releaseobject #objCell;
+	// Excelオブジェクトの取得
+	#objXls = getobject($s_path + "\\" + $s_file);
+	if(#objXls==0){
+		message "objエラー：エクセル開いてないor未保存";
+		call RELOBJ;
+		call ENDMAC;
+	}
 
+
+	// シートとセルの選択
+	#objSheet = member(#objXls,   "Sheets", $s_sheet);
+	#objCells = member(#objSheet, "Cells");
+	#objCell  = member(#objCells, "Item", #s_row, #s_col);
+	
+	// セルの内容を更新
+	//setpropstr #objCell, "Value", "新しい値";
+	$org=getpropstr(#objCell,"Value"); //message $s;
+	
+	question "書き換える？ Undoできないので注意\n"
+		+"---------------------------------------\n"
+		+$org
+		+"\n---------------------------------------";
+	
+	if(result==yes){
+		setpropstr #objCell, "Value", $val;
+		
+		// Excelをアクティブ化
+		callmethod #objSheet, "Activate";
+		callmethod #objCell, "Activate";
+		call RELOBJ;
+		call TOEXL;
+		
+	}else{
+		//未適用
+		call RELOBJ;
+		call TOEXL;
+		
+	}
+
+
+ENDMAC:
+	//message"おわり";
+	call RELOBJ;
+	//setsearch $BAK;
 endmacro;
+
+
+TOEXL:
+	moveto 0,0;
+	
+	if(#s_pid!=0){
+		
+		#obj=createobject("WScript.shell");
+		callmethod #obj,"AppActivate",#s_pid;
+		//callmethod #obj,"AppActivate",#s_file; //s_fileでも切り替わるが[共有]等がつくとNG
+		releaseobject #obj;
+	}
+
+return;
+
+RELOBJ:
+	// オブジェクトの解放
+	releaseobject #objXls;
+	releaseobject #objSheet;
+	releaseobject #objCells;
+	releaseobject #objCell;
+return;
 
 
 
