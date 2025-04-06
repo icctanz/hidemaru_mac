@@ -141,10 +141,9 @@ Sub To_秀丸()
 
 
     ' 保存するファイルのパス
-    'path = "C:\Users\SB63ad1103.DNJP\_work\tmp_hidemaru_bkup\dummy_exl.txt"
     path = "C:\temp\tmp_hidemaru\dummy_exl.txt"
 
-    ' テキストファイルに書き出し
+    ' テキストファイルにセル情報書き出し
     Open path For Output As #1
     
     Print #1, Application.ActiveCell.Value
