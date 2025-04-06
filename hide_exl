@@ -119,29 +119,40 @@ return;
 
 
 
-'// Excelの情報をHidemaruエディタで開く
-Private Declare Function GetWindowThreadProcessId Lib "user32.dll" (ByVal hWnd As Long, lpdwProcessId As Long) As Long
+'// Excelの情報をダミーファイルに書き出してHidemaruエディタで開く
+Private Declare PtrSafe Function GetWindowThreadProcessId Lib "user32.dll" (ByVal hwnd As LongPtr, lpdwProcessId As LongPtr) As LongPtr
 
 Sub To_秀丸()
     Dim path As String
     Dim RetVal
     Dim C1, C2, C3, filtercol As Long
-    Dim pid As Long
+    Dim pid As LongPtr
+    Dim hwnd As LongPtr
+    Dim threadID As LongPtr
+
+    ' Excelのウィンドウハンドル取得
+    hwnd = Application.hwnd
 
     ' ExcelのプロセスID取得
-    pid = Application.hWnd
-    Call GetWindowThreadProcessId(Application.hWnd, pid)
+    threadID = GetWindowThreadProcessId(hwnd, pid)
+
+    ' pidにはプロセスIDが格納される
+    ' MsgBox "ExcelのプロセスID: " & pid
+
 
     ' 保存するファイルのパス
-    path = "C:\Users\SB63ad1103.DNJP\_work\tmp_hidemaru_bkup\dummy_exl.txt"
+    'path = "C:\Users\SB63ad1103.DNJP\_work\tmp_hidemaru_bkup\dummy_exl.txt"
+    path = "C:\temp\tmp_hidemaru\dummy_exl.txt"
 
     ' テキストファイルに書き出し
     Open path For Output As #1
+    
     Print #1, Application.ActiveCell.Value
+    Print #1, "--------------------------------"
     Print #1, "[cell_info]"
-    Print #1, "s_path=" & Application.ActiveWorkbook.path
-    Print #1, "s_file=" & Application.ActiveWorkbook.Name
-    Print #1, "s_sheet=" & Application.ActiveSheet.Name
+    Print #1, "s_path=""" & Application.ActiveWorkbook.path & """"
+    Print #1, "s_file=""" & Application.ActiveWorkbook.Name & """"
+    Print #1, "s_sheet=""" & Application.ActiveSheet.Name & """"
 
     ' セルの表示位置
     filtercol = Application.ActiveCell.Column
@@ -157,22 +168,45 @@ Sub To_秀丸()
 
     Print #1, "s_col=" & Application.ActiveCell.Column
     Print #1, "s_row=" & Application.ActiveCell.Row
-    Print #1, "s_title=" & Application.ActiveCell.Column & "列" & Application.ActiveCell.Row & "行"
-    Print #1, "s_cap=" & Application.Caption
-    Print #1, "s_hWnd=" & Application.hWnd
+    'Print #1, "(" & Application.ActiveCell.Column & "列" & Application.ActiveCell.Row & "行)"
+    
+    Print #1, "--------------------------------"
+    Print #1, "s_cap=""" & Application.Caption & """"
+    Print #1, "s_hWnd=" & Application.hwnd
     Print #1, "s_pid=" & pid
+    Print #1, "--------------------------------"
 
     ' 列位置を3段階に分けて出力
     Print #1, "[s_pos1]" & Chr(65 + Int((filtercol - 703) / (1378 - 702)))
     Print #1, "[s_pos2]" & Chr(65 + Int((filtercol - 27) / 26))
     Print #1, "[s_pos3]" & Chr(65 + ((filtercol - 1) Mod 26))
+    Print #1, "filtercol=" & filtercol
 
+    Print #1, ""
     Close #1
 
     ' Hidemaruエディタでファイルを開く
-    RetVal = Shell("C:\Program Files (x86)\Hidemaru\Hidemaru.exe /m5 /次文書位置 MAC " & path, 1)
-    RetVal = Shell("C:\Program Files (x86)\Hidemaru\Hidemaru.exe /m5 " & path, 1)
+    ' RetVal = Shell("C:\Program Files\Hidemaru\Hidemaru.exe /m5 /x改行置換.mac " & path, 1)
+    RetVal = Shell("C:\Program Files\Hidemaru\Hidemaru.exe /m5 " & path, 1)
+
 End Sub
+
+
+
+
+
+Function columnLetter(columnNumber As Long) As String
+    Dim columnLetter As String
+    columnLetter = ""
+    
+    Do While columnNumber > 0
+        columnNumber = columnNumber - 1
+        columnLetter = Chr((columnNumber Mod 26) + 65) & columnLetter
+        columnNumber = columnNumber \ 26
+    Loop
+    
+    columnLetter = columnLetter
+End Function
 
 
 
