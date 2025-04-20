@@ -1,0 +1,208 @@
+// 
+// Excel <-> hidemaruを行ったり来たりするマクロ
+// 
+// ※Excelセルの内容をvb側のマクロでテキスト出力、秀丸で編集してExcelセルに書き戻す
+// 
+
+setcompatiblemode(0x00020000);	//検索条件保持
+
+MAIN:
+	// ダミーファイルのパス設定
+	$dummy_file = "c:\\temp\\tmp_hidemaru\\dummy_exl.txt";
+
+	// カレントファイルのチェック
+	if(filename != $dummy_file){
+		message "カレントファイル異常"+"\n入力: "+filename+"\n要求: "+$dummy_file;
+		endmacro;
+	}
+
+	// ファイルから情報を取得
+	$s_path = getinistr($dummy_file, "cell_info", "s_path");
+	$s_file = getinistr($dummy_file, "cell_info", "s_file");
+	$s_sheet= getinistr($dummy_file, "cell_info", "s_sheet");
+	$s_pos  = getinistr($dummy_file, "cell_info", "s_pos");
+	#s_row  = getininum($dummy_file, "cell_info", "s_row");
+	#s_col  = getininum($dummy_file, "cell_info", "s_col");
+	#s_pid  = getininum($dummy_file, "cell_info", "s_pid");
+	$s_cap  = getinistr($dummy_file, "cell_info", "s_cap");
+
+	// [debug]取得データの表示
+	//message "取得したExcel情報: \n"
+	//    + "パス:       " + $s_path  + "\n"
+	//    + "ファイル名: " + $s_file  + "\n"
+	//    + "シート名:   " + $s_sheet + "\n"
+	//    + "セル位置:   " + $s_pos   + "\n"
+	//    + "行: " + str(#s_row) + " / 列: " + str(#s_col) + "\n";
+
+
+	//セルに出力する内容取得
+	moveto 0,0;
+	searchdown "^--------------------------------(\\**)*$" , regular;
+	if (result == false) {
+	    message "変です。セルに書き戻す値が認識できない";
+	    call ENDMAC;
+	    endmacro;
+	}
+	left;
+	$val = gettext2(0,0,column,lineno);
+
+	right;
+	golineend2;
+	overwrite "*";
+	savelf;
+	//message "書き込む内容\n"+$val;
+
+	// Excelオブジェクトの取得
+	#objXls = getobject($s_path + "\\" + $s_file);
+	if(#objXls==0){
+		message "objエラー：エクセル開いてないor未保存";
+		call RELOBJ;
+		call ENDMAC;
+	}
+
+
+	// シートとセルの選択
+	#objSheet = member(#objXls,   "Sheets", $s_sheet);
+	#objCells = member(#objSheet, "Cells");
+	#objCell  = member(#objCells, "Item", #s_row, #s_col);
+	
+	// セルの現在値
+	$org=getpropstr(#objCell,"Value"); //message $s;
+	
+	question "以下の内容(現在値)を書き換えます？ Undoできないので注意\n"
+		+"---------------------------------------\n"
+		+$org
+		+"\n---------------------------------------";
+	
+	if(result==yes){
+		// セルの内容を更新
+		setpropstr #objCell, "Value", $val;
+		
+		// Excelをアクティブ化
+		callmethod #objSheet, "Activate";
+		callmethod #objCell, "Activate";
+		call ACT_EXL;
+		
+	}else{
+		//未適用
+		call RELOBJ;
+		
+	}
+
+
+
+ENDMAC:
+	//message"おわり";
+	call RELOBJ;
+	//setsearch $BAK;
+endmacro;
+
+
+//EXCELにフォーカスする
+ACT_EXL:
+	moveto 0,0;
+	if(#s_pid!=0){
+		
+		#obj=createobject("WScript.shell");
+		callmethod #obj,"AppActivate",#s_pid;
+		//callmethod #obj,"AppActivate",#s_file; //s_fileでも切り替わるが[共有]等がつくとNG
+		releaseobject #obj;
+	}
+return;
+
+
+RELOBJ:
+	// オブジェクトの解放
+	releaseobject #objXls;
+	releaseobject #objSheet;
+	releaseobject #objCells;
+	releaseobject #objCell;
+return;
+
+
+
+
+
+/*　以下エクセル側のvbマクロ
+
+'// Excelの情報をHidemaruエディタで開く
+
+'// Excelの情報をHidemaruエディタで開く
+Private Declare PtrSafe Function GetWindowThreadProcessId Lib "user32.dll" (ByVal hwnd As LongPtr, lpdwProcessId As LongPtr) As LongPtr
+
+Sub To_秀丸()
+    Dim path As String
+    Dim RetVal
+    Dim C1, C2, C3, filtercol As Long
+    Dim pid As LongPtr
+    Dim hwnd As LongPtr
+    Dim threadID As LongPtr
+
+    ' Excelのウィンドウハンドル取得
+    hwnd = Application.hwnd
+
+    ' ExcelのプロセスID取得
+    threadID = GetWindowThreadProcessId(hwnd, pid)
+
+    ' pidにはプロセスIDが格納される
+    ' MsgBox "ExcelのプロセスID: " & pid
+
+
+    ' 保存するファイルのパス
+    'path = "C:\Users\SB63ad1103.DNJP\_work\tmp_hidemaru_bkup\dummy_exl.txt"
+    path = "C:\temp\tmp_hidemaru\dummy_exl.txt"
+
+    ' テキストファイルに書き出し
+    Open path For Output As #1
+    
+    Print #1, Application.ActiveCell.Value
+    Print #1, "--------------------------------"
+    Print #1, "[cell_info]"
+    Print #1, "s_path=""" & Application.ActiveWorkbook.path & """"
+    Print #1, "s_file=""" & Application.ActiveWorkbook.Name & """"
+    Print #1, "s_sheet=""" & Application.ActiveSheet.Name & """"
+
+    ' セルの表示位置
+    filtercol = Application.ActiveCell.Column
+    C1 = (filtercol - 1) Mod 26
+    C2 = ((filtercol - 27) / 26) Mod 26
+    C3 = (((filtercol - 703) / 1378 - 702))
+
+    If filtercol < 26 Then
+        Print #1, "s_pos=" & Chr(64 + filtercol) & Application.ActiveCell.Row
+    Else
+        Print #1, "s_pos=" & Chr(65 + C3) & Chr(65 + C2) & Chr(65 + C1) & Application.ActiveCell.Row
+    End If
+
+    Print #1, "s_col=" & Application.ActiveCell.Column
+    Print #1, "s_row=" & Application.ActiveCell.Row
+    'Print #1, "(" & Application.ActiveCell.Column & "列" & Application.ActiveCell.Row & "行)"
+    
+    Print #1, "--------------------------------"
+    Print #1, "s_cap=""" & Application.Caption & """"
+    Print #1, "s_hWnd=" & Application.hwnd
+    Print #1, "s_pid=" & pid
+    Print #1, "--------------------------------"
+
+    ' 列位置を3段階に分けて出力
+    Print #1, "[s_pos1]" & Chr(65 + Int((filtercol - 703) / (1378 - 702)))
+    Print #1, "[s_pos2]" & Chr(65 + Int((filtercol - 27) / 26))
+    Print #1, "[s_pos3]" & Chr(65 + ((filtercol - 1) Mod 26))
+    Print #1, "filtercol=" & filtercol
+
+    Print #1, ""
+    Close #1
+
+    ' Hidemaruエディタでファイルを開く
+    ' RetVal = Shell("C:\Program Files\Hidemaru\Hidemaru.exe /m5 /x改行置換.mac " & path, 1)
+    'RetVal = Shell("C:\Program Files\Hidemaru\Hidemaru.exe /m5 /x hide_exl_imesw.Mac " & path, 1)
+    RetVal = Shell("C:\Program Files\Hidemaru\Hidemaru.exe /m5 " & path, 1)
+    
+
+End Sub
+
+
+
+
+*/
+
