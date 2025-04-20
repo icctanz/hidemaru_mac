@@ -11,3 +11,5 @@
 ・mery_color_rnd.mac 
 　mery_color.macのおまけ
 
+・hide_exl.mac
+　Excel(cell) <-> hidemaruを行ったり来たりするマクロ
